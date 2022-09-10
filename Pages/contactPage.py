@@ -43,5 +43,8 @@ class Contact:
         self.driver.find_element(By.ID, "wpforms-submit-1542").click()
         # return
 
-    def find_element_using_partial_text(self, text):
-        return self.driver.find_element(By.PARTIAL_LINK_TEXT, text)
+    def get_input_error(self, id):
+        return self.driver.find_element(By.ID, id).is_displayed()
+
+    def find_confirmation_message(self):
+        return self.driver.find_element(By.ID, "wpforms-confirmation-1542").is_displayed()
