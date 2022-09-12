@@ -14,7 +14,7 @@ class TestVideos(TestBaseHome):
 
     @pytest.mark.video_page
     def test_lunch_video(self):
-        self.driver.get('https://video.zoombangla.com/')
+
         if self.driver.current_url == 'https://zoombangla.com/#google_vignette':
             self.driver.refresh()
             self.driver.get('https://video.zoombangla.com/')
