@@ -1,6 +1,9 @@
 import string
 import random
 import time
+
+from selenium.webdriver.common.by import By
+
 from Pages.videoPage import Video
 from Locators.locators import Locators
 from tests.test_base import TestBaseHome
@@ -14,13 +17,19 @@ class TestVideos(TestBaseHome):
 
     @pytest.mark.video_page
     def test_lunch_video(self):
-        self.driver.get('https://video.zoombangla.com/')
-        if self.driver.current_url == 'https://zoombangla.com/#google_vignette':
-            self.driver.refresh()
-            self.driver.get('https://video.zoombangla.com/')
-            assert self.driver.current_url == 'https://video.zoombangla.com/'
+        drv = self.driver
+        video_obj = Video(drv)
+        time.sleep(10)
+        video_obj.navigate_to_video()
+        if '#google_vignette' in drv.current_url:
+            time.sleep(5)
+            drv.switch_to.frame(Locators.add_iframe_1)
+            drv.switch_to.frame(Locators.add_iframe_2)
+            drv.find_element(By.XPATH, Locators.add_dismiss_button).click()
+            time.sleep(10)
+            assert drv.current_url == 'https://video.zoombangla.com/'
         else:
-            assert self.driver.current_url == 'https://video.zoombangla.com/'
+            assert drv.current_url == 'https://video.zoombangla.com/'
 
     @pytest.mark.video_page
     def test_check_video(self):
@@ -57,15 +66,16 @@ class TestVideos(TestBaseHome):
 
     @pytest.mark.video_page
     def test_comment_without_data(self):
-        self.driver.get('https://video.zoombangla.com/?p=169')
+        video = Video(self.driver)
+        self.driver.get('https://video.zoombangla.com/?p=140')
         url_before_commenting = self.driver.current_url
-        Video(self.driver).post_comment()
+        video.post_comment()
         assert url_before_commenting == self.driver.current_url
 
     @pytest.mark.video_page
     def test_comment_with_invalid_email(self):
         video = Video(self.driver)
-        self.driver.get('https://video.zoombangla.com/?p=169')
+        self.driver.get('https://video.zoombangla.com/?p=140')
         url_before_commenting = self.driver.current_url
         video.set_name("tester")
         video.set_emial("email")
@@ -77,7 +87,7 @@ class TestVideos(TestBaseHome):
     @pytest.mark.video_page
     def test_comment_using_duplicate_email(self):
         video = Video(self.driver)
-        self.driver.get('https://video.zoombangla.com/?p=169')
+        self.driver.get('https://video.zoombangla.com/?p=140')
         email = self.generateEmail()
         # first comment
         time.sleep(30)
@@ -89,8 +99,6 @@ class TestVideos(TestBaseHome):
         video.set_website("dddd")
         video.post_comment()
 
-        # time.sleep(15)
-
         # using duplicate email
         url_before_commenting = self.driver.current_url
         video.set_name("tester")
@@ -98,4 +106,4 @@ class TestVideos(TestBaseHome):
         video.set_comment("this is comment")
         video.set_website("dddd")
         video.post_comment()
-        assert self.driver.current_url != url_before_commenting and self.driver.current_url == Locators.error_comments
+        assert self.driver.current_url == Locators.error_comments
